@@ -6,6 +6,10 @@ An evidence-based digital decision support system that integrates nutrient reten
 
 The Smart Cooking Assistant is a comprehensive web application that helps users make informed decisions about cooking methods by balancing nutritional value with environmental impact. Whether you're cooking a single ingredient or preparing a complex meal, our app provides science-based recommendations to optimize your culinary choices.
 
+## 🚀 Live Demo
+
+**Try the app now**: [https://cooking-app-sand.vercel.app/](https://cooking-app-sand.vercel.app/)
+
 ## ✨ Key Features
 
 ### 🎯 Intelligent Cooking Recommendations
