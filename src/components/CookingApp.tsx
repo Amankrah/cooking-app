@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Slider } from "@/components/ui/slider"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -626,7 +625,7 @@ export default function CookingApp() {
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground mb-4">
-              Choose which cooking methods you'd like to compare for detailed analysis:
+              Choose which cooking methods you&apos;d like to compare for detailed analysis:
             </p>
             <div className="grid grid-cols-2 gap-3">
               {availableMethodsForComparison.map((method) => (
@@ -681,14 +680,13 @@ export default function CookingApp() {
                             {ingredient.name}
                           </h4>
                           <div className="grid grid-cols-1 gap-2">
-                            {comparisonMethods.map((methodId) => {
-                              const method = cookingMethods.find((m) => m.id === methodId)!
-                              const isSelected = ingredient.selectedMethod === methodId
-                              return (
+                            {getIngredientMethodComparison(ingredient)
+                              .filter(method => comparisonMethods.includes(method.method))
+                              .map((method) => (
                                 <div
-                                  key={methodId}
+                                  key={method.method}
                                   className={`flex items-center justify-between p-2 rounded text-sm ${
-                                    isSelected ? "bg-primary text-primary-foreground" : "bg-muted"
+                                    method.isSelected ? "bg-primary text-primary-foreground" : "bg-muted"
                                   }`}
                                 >
                                   <div className="flex items-center gap-2">
@@ -697,12 +695,11 @@ export default function CookingApp() {
                                     <span className="text-xs opacity-75">({method.time}m)</span>
                                   </div>
                                   <div className="flex gap-3 text-xs">
-                                    <span>🍎 {methodData[methodId].nutrition}%</span>
-                                    <span>🌍 {methodData[methodId].carbon}g</span>
+                                    <span>🍎 {method.nutrition}%</span>
+                                    <span>🌍 {method.carbon}g</span>
                                   </div>
                                 </div>
-                              )
-                            })}
+                              ))}
                           </div>
                         </div>
                       ))}
@@ -719,36 +716,13 @@ export default function CookingApp() {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-2">
-                      {comparisonMethods.map((methodId) => {
-                        const method = cookingMethods.find((m) => m.id === methodId)!
-                        const isSelected = finalMealMethod === methodId
-
-                        // Calculate combined impact for all ingredients with this final method
-                        let totalNutrition = 0
-                        let totalCarbon = 0
-
-                        ingredients.forEach((ingredient) => {
-                          const individualMethod = ingredient.selectedMethod || "steam"
-                          let combinedNutrition = methodData[individualMethod].nutrition
-                          let combinedCarbon = methodData[individualMethod].carbon
-
-                          if (individualMethod !== "raw") {
-                            combinedNutrition = Math.max(combinedNutrition * 0.85, 40)
-                            combinedCarbon += methodData[methodId].carbon * 0.3
-                          } else {
-                            combinedNutrition = methodData[methodId].nutrition
-                            combinedCarbon = methodData[methodId].carbon * 0.5
-                          }
-
-                          totalNutrition += combinedNutrition
-                          totalCarbon += combinedCarbon
-                        })
-
-                        return (
+                      {getMealMethodComparison()
+                        .filter(method => comparisonMethods.includes(method.method))
+                        .map((method) => (
                           <div
-                            key={methodId}
+                            key={method.method}
                             className={`flex items-center justify-between p-3 rounded-lg ${
-                              isSelected ? "bg-primary text-primary-foreground" : "bg-muted"
+                              method.isSelected ? "bg-primary text-primary-foreground" : "bg-muted"
                             }`}
                           >
                             <div className="flex items-center gap-3">
@@ -759,12 +733,11 @@ export default function CookingApp() {
                               </div>
                             </div>
                             <div className="text-right text-sm">
-                              <div>🍎 Avg: {Math.round(totalNutrition / ingredients.length)}%</div>
-                              <div>🌍 Total: {Math.round(totalCarbon)}g</div>
+                              <div>🍎 Avg: {Math.round(method.avgNutrition)}%</div>
+                              <div>🌍 Total: {Math.round(method.totalCarbon)}g</div>
                             </div>
                           </div>
-                        )
-                      })}
+                        ))}
                     </div>
                     <div className="mt-3 text-xs text-muted-foreground">
                       * Comparison shows combined impact of individual prep + final cooking method
